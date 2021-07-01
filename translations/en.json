@@ -5,7 +5,7 @@
     "long_description": "Play the famous zen tunes in your help desk and \n listen to the beats it has to offer.",
     "installation_instructions": "Simply click install.",
     "parameters": {
-      "form_name" : {"label": "Example: Domain Name"}
+      "form_name": { "label": "Example: Domain Name" }
     }
   }
 }

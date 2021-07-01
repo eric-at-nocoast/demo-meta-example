@@ -12,7 +12,7 @@
       "ticket_sidebar": "assets/iframe.html"
     }
   },
-  "parameters" : [
+  "parameters": [
     {
       "name": "form_name",
       "type": "text",

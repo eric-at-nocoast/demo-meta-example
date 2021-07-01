@@ -1,14 +1,6 @@
-# App name
+# ZAF Metadata example (Updating settings and parameters)
 
-[brief description of the app]
+This app is an example of how to use the metadata API, to check parameters and set new ones. 
 
-### The following information is displayed:
+Please submit bug reports to [enelson@zendesk.com](mailto:enelson@zendesk.com). Pull requests are welcome.
 
-* info1
-* info2
-* info3
-
-Please submit bug reports to [Insert Link](). Pull requests are welcome.
-
-### Screenshot(s):
-[put your screenshots down here.]

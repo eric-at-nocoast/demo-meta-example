@@ -72,14 +72,14 @@
 						//Here we're sending the request to your server, awaiting the handshake completion and then calling the url location of the page that's supposed to be presented in iframe
 						client.request(options).then(function (data) {
 							var iframe = document.createElement('iframe');
-							setAttributes(iframe, { "src": "http://{{setting.form}}/assets/domain1.html", "height": "300px", "width": "100%" })
+							setAttributes(iframe, { "src": `https://${domain}/domain1.html`, "height": "300px", "width": "100%" })
 							document.body.appendChild(iframe);
 						})
 					}
 					else if (form === 'domain2') {
 						client.request(options).then(function (data) {
 							var iframe = document.createElement('iframe');
-							setAttributes(iframe, { "src": "http://{{setting.form}}/assets/domain1.html", "height": "300px", "width": "100%" })
+							setAttributes(iframe, { "src": `https://${domain}/domain1.html`, "height": "300px", "width": "100%" })
 							document.body.appendChild(iframe);
 						})
 					}

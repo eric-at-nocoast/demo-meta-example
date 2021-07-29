@@ -7,6 +7,7 @@
   },
   "defaultLocale": "en",
   "private": true,
+  "signedUrls": true,
   "location": {
     "support": {
       "ticket_sidebar": "assets/iframe.html"
@@ -14,10 +15,10 @@
   },
   "parameters": [
     {
-      "name": "form_name",
+      "name": "domain_name",
       "type": "text",
-      "secure": false,
-      "required": false
+      "secure": true,
+      "required": true
     }
   ],
   "version": "1.0",

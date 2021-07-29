@@ -1,80 +1,129 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-  <meta charset="utf-8">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-</head>
+	<head>
+		<meta charset="utf-8">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	</head>
 
-<body>
-  <div id='infoForm' style="display: none;"> 
-  <h3>We need some info from you</h3>
-  <label for="formName">Enter new form name:</label>
-  <input style="width:250px" name="formName" id="formName" value="">
-  </br>
-  <p>Refresh the page after you've set the metadata!</p>  
-  <hr>
-  </br>
-  <button onClick="setMetaData()">Set metadata</button>
-</div>
-<h3 id="displayMsg">We have everything that we need!</h3>
-  <script type="text/javascript" src="https://assets.zendesk.com/apps/sdk/2.0/zaf_sdk.js"></script>
+	<body>
+		<div id='infoForm' style="display: none;">
+			<h3>We need some info from you</h3>
+			<label for="formName">Enter new form name:</label>
+			<input style="width:250px" name="formName" id="formName" value="">
+			</br>
+			<p>Refresh the page after you've set the metadata!</p>
+			<hr>
+			</br>
+			<button onClick="setMetaData()">Set metadata</button>
+		</div>
+		<h3 id='wrongDomain' style="display: none;">Looks like you might have input the wrong domain. Please adjust and
+			refresh your browser</h3>
+		<script type="text/javascript" src="https://assets.zendesk.com/apps/sdk/2.0/zaf_sdk.js"></script>
+		<script>
 
-  <script>
-  let client = ZAFClient.init()
-  client.invoke('resize', { width: '100%', height: '300px' })
+			//Just grabbed the example from 'https://developer.zendesk.com/documentation/apps/app-developer-guide/using-the-apps-framework/#encoding-and-sending-json-web-tokens'
 
-  // Don't know app's Installation ID yet.
-  let installationId = 0
+			let client = ZAFClient.init()
+			client.invoke('resize', { width: '100%', height: '300px' })
 
+			// Don't know app's Installation ID yet.
+			let installationId = 0
 
-  // On the page load we'll get the metadata and then decide whether to show or hide the required info form
-  function getMetaData() {
+			function setAttributes(el, attrs) {
+				for (var key in attrs) {
+					el.setAttribute(key, attrs[key]);
+				}
+			}
 
-    client.metadata().then(function(metadata) {
+			// On the page load we'll get the metadata and then decide whether to show or hide the required info form
+			function getMetaData() {
 
-      let form = metadata.settings["form_name"]
-      let x = document.getElementById('infoForm')
-      let y = document.getElementById('displayMsg')
-      if ( form == null || undefined ){
-        console.log(form)
-        x.style.display = 'block';
-        y.style.display = 'none';
-      }
-      // Need Installation ID when saving later.
-      console.log("installationId:", metadata["installationId"])
-      installationId = metadata["installationId"]
-    })
-  }
+				client.metadata().then(function (metadata) {
 
-  function setMetaData() {
+					let domain = metadata.settings["domain_name"]
+					var options = {
+						url: `${form} + jwt_auth_endpoint`,
+						headers: {
+							'Authorization': 'JWT {{jwt.token}}'
+						},
+						contentType: 'application/json',
+						secure: true,
+						jwt: {
+							algorithm: 'HS256',
+							secret_key: '{{setting.shared_secret}}',
+							expiry: 3600,
+							claims: {
+								iat: 1372113305,
+								jti: '8883362531196.326',
+								//the iss value could be grabbed from the client.context() if you'd like as well
+								iss: 'some_subdomain',
+							}
+						},
+						type: 'POST',
+						dataType: 'json'
+					};
+					let x = document.getElementById('infoForm')
+					let y = document.getElementById('wrongDomain')
+					if (form == null || undefined) {
+						x.style.display = 'block';
+					}
+					else if (form === 'domain1') {
+						//Here we're sending the request to your server, awaiting the handshake completion and then calling the url location of the page that's supposed to be presented in iframe
+						client.request(options).then(function (data) {
+							var iframe = document.createElement('iframe');
+							setAttributes(iframe, { "src": "http://{{setting.form}}/assets/domain1.html", "height": "300px", "width": "100%" })
+							document.body.appendChild(iframe);
+						})
+					}
+					else if (form === 'domain2') {
+						client.request(options).then(function (data) {
+							var iframe = document.createElement('iframe');
+							setAttributes(iframe, { "src": "http://{{setting.form}}/assets/domain1.html", "height": "300px", "width": "100%" })
+							document.body.appendChild(iframe);
+						})
+					}
+					//Shows a message if the wrong domain was put in the form. Not needed if you're using radio buttons instead of a text field. 
+					else {
+						y.style.display = 'block';
+					}
 
-    // Get new values from user for form_name and enable_role_restriction app setting fields.
-    let newFormName = $("#formName").val()
-    let data = 
-      { settings:
-        { form_name: newFormName,
-        }
-      }
-    console.log("data:", data)
+					// Need Installation ID when saving later.
+					console.log("installationId:", metadata["installationId"])
+					installationId = metadata["installationId"]
+				})
+			}
 
-    let updateSettings = {
-      url: `/api/v2/apps/installations/${installationId}.json`,
-      type: "PUT",
-      contentType: "application/json",
-      data: JSON.stringify(data),
-      dataType: "json"
-    }
+			function setMetaData() {
 
-    // Update app settings.
-    client.request(updateSettings)
-      .then((success) => console.log("success:", success))
-      .catch((error) => console.log("error:", error))
+				// Get new values from user for form_name and enable_role_restriction app setting fields.
+				let newFormName = $("#formName").val()
+				let data =
+				{
+					settings:
+					{
+						form_name: newFormName,
+					}
+				}
+				console.log("data:", data)
 
-  }
+				let updateSettings = {
+					url: `/api/v2/apps/installations/${installationId}.json`,
+					type: "PUT",
+					contentType: "application/json",
+					data: JSON.stringify(data),
+					dataType: "json"
+				}
 
-  window.onload = getMetaData;
-  </script>
-</body>
+				// Update app settings.
+				client.request(updateSettings)
+					.then((success) => console.log("success:", success))
+					.catch((error) => console.log("error:", error))
+
+			}
+
+			window.onload = getMetaData;
+		</script>
+	</body>
 
 </html>

@@ -29,10 +29,11 @@
 
 			// Don't know app's Installation ID yet.
 			let installationId = 0
-
-			function setAttributes(el, attrs) {
+			
+			//This is a little helper function to handle setting multiple iframe attributes at once.
+			function setAttributes(data, attrs) {
 				for (var key in attrs) {
-					el.setAttribute(key, attrs[key]);
+					data.setAttribute(key, attrs[key]);
 				}
 			}
 
